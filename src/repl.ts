@@ -1,31 +1,22 @@
-import { createInterface, Interface } from 'readline';
-import { getCommands } from './command_registry.js';
-
-const commands = getCommands();
+import { State, initState } from './state.js';
 
 export function cleanInput(input: string): string[] {
 	return input.toLowerCase().trim().split(/\s+/);
 }
 
-export let rl: Interface | null = null;
-
 export function startREPL(): void {
-  rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    prompt: "Pokedex > "
-  });
+ const repl = initState();
 
-  rl?.prompt();
+ repl.line.prompt();
 
-  rl?.on('line', (line: string) => {
+ repl.line.on('line', (line: string) => {
     const cleanLine = cleanInput(line);
     if (cleanLine.length === 0 || cleanLine[0] === "") {
-      rl?.prompt();
+      repl.line.prompt();
     }
-
-	commands[cleanLine[0]].callback(commands);
-	rl?.prompt();
+	else {
+		repl.commands[cleanLine[0]].callback(repl);
+		repl.line.prompt();
+	}
   });
-
 };
